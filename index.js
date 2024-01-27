@@ -50,7 +50,7 @@ try {
 			res.json(successfulJson(
 				Array.prototype.slice.call(
 					new Uint8Array(
-						fs.readFileSync(join(fileName)).buffer
+						fs.readFileSync(join(fileName))
 					)
 				)
 			));

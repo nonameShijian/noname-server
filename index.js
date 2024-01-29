@@ -141,7 +141,7 @@ try {
 
 	app.listen(8089, () => {
 		console.log("应用正在监听 8089 端口 !");
-		require('child_process').exec('start http://localhost:8089/');
+		if (!process.argv[2]) require('child_process').exec('start http://localhost:8089/');
 	});
 
 	class ReturnData {

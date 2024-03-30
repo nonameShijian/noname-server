@@ -52,12 +52,11 @@ try {
 		if (!isInProject(dir)) {
 			throw new Error(`只能访问${__dirname}的文件或文件夹`);
 		}
-		if (!fs.existsSync(join(dir))) {
-			fs.mkdirSync(join(dir), { recursive: true });
-		} else {
+		if (fs.existsSync(join(dir))) {
 			if (!fs.lstatSync(join(dir)).isDirectory()) {
 				throw new Error(`${join(dir)}不是文件夹`);
 			}
+			fs.rmdirSync(join(dir), { recursive: true });
 		}
 		res.json(successfulJson(true));
 	});

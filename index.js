@@ -20,8 +20,6 @@ try {
 		return path.normalize(join(url)).startsWith(__dirname);
 	}
 
-	app.use(express.static(__dirname));
-
 	// parse application/x-www-form-urlencoded
 	app.use(bodyParser.urlencoded({ extended: false }));
 	// parse application/json
@@ -34,6 +32,10 @@ try {
 		res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
 		next()
 	});
+
+	var oneYear = 60 * 1000 * 60 * 24 * 365;
+
+	app.use(express.static(__dirname, { maxAge: oneYear }));
 
 	app.get("/", (req, res) => {
 		res.send(fs.readFileSync(join('index.html')));
@@ -158,6 +160,18 @@ try {
 		}
 		catch (e) {
 			res.json(failedJson(500, String(e)));
+		}
+	});
+
+	app.get("/checkFile", (req, res) => {
+		const { fileName } = req.query;
+		if (!isInProject(fileName)) {
+			throw new Error(`只能访问${__dirname}的文件或文件夹`);
+		}
+		if (fs.existsSync(join(fileName))) {
+			res.json(successfulJson())
+		} else {
+			res.json(failedJson(404, '文件不存在'));
 		}
 	});
 

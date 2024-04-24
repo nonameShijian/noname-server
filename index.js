@@ -60,7 +60,7 @@ try {
 		if (!fs.existsSync(join(dir))) {
 			fs.mkdirSync(join(dir), { recursive: true });
 		} else {
-			if (!fs.lstatSync(join(dir)).isDirectory()) {
+			if (!fs.statSync(join(dir)).isDirectory()) {
 				throw new Error(`${join(dir)}不是文件夹`);
 			}
 		}
@@ -73,7 +73,7 @@ try {
 			throw new Error(`只能访问${__dirname}的文件或文件夹`);
 		}
 		if (fs.existsSync(join(dir))) {
-			if (!fs.lstatSync(join(dir)).isDirectory()) {
+			if (!fs.statSync(join(dir)).isDirectory()) {
 				throw new Error(`${join(dir)}不是文件夹`);
 			}
 			fs.rmdirSync(join(dir), { recursive: true });
@@ -129,7 +129,7 @@ try {
 		if (!fs.existsSync(join(fileName))) {
 			throw new Error(`文件不存在`);
 		}
-		const stat = fs.lstatSync(join(fileName));
+		const stat = fs.statSync(join(fileName));
 		if (stat.isDirectory()) {
 			throw new Error("不能删除文件夹");
 		}
@@ -145,7 +145,7 @@ try {
 		if (!fs.existsSync(join(dir))) {
 			throw new Error(`文件夹不存在`);
 		}
-		const stat = fs.lstatSync(join(dir));
+		const stat = fs.statSync(join(dir));
 		if (stat.isFile()) {
 			throw new Error("getFileList只适用于文件夹而不是文件");
 		}

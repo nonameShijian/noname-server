@@ -179,10 +179,30 @@ try {
 		if (!isInProject(fileName)) {
 			throw new Error(`只能访问${__dirname}的文件或文件夹`);
 		}
-		if (fs.existsSync(join(fileName))) {
-			res.json(successfulJson())
-		} else {
-			res.json(failedJson(404, '文件不存在'));
+		try {
+			if (fs.statSync(join(fileName)).isFile()) {
+				res.json(successfulJson());
+			} else {
+				res.json(failedJson(404, '不是一个文件'));
+			}
+		} catch (error) {
+			res.json(failedJson(404, '文件不存在或无法访问'));
+		}
+	});
+
+	app.get("/checkDir", (req, res) => {
+		const { dir } = req.query;
+		if (!isInProject(dir)) {
+			throw new Error(`只能访问${__dirname}的文件或文件夹`);
+		}
+		try {
+			if (fs.statSync(join(dir)).isDirectory()) {
+				res.json(successfulJson());
+			} else {
+				res.json(failedJson(404, '不是一个文件夹'));
+			}
+		} catch (error) {
+			res.json(failedJson(404, '文件夹不存在或无法访问'));
 		}
 	});
 

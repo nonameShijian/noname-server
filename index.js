@@ -1,9 +1,19 @@
 try {
 	const express = require("express");
+	const minimist = require("minimist");
 	const bodyParser = require('body-parser');
 	const app = express();
 	const fs = require('fs');
 	const path = require('path');
+
+	const oneYear = 60 * 1000 * 60 * 24 * 365;
+
+	// 解析命令行参数
+	// 示例: -s --maxAge 100
+	const argv = minimist(process.argv.slice(2), {
+		alias: { "server": "s" },
+		default: { maxAge: oneYear }
+	});
 
 	app.use(bodyParser.json({
 		limit:'10240mb'
@@ -33,9 +43,10 @@ try {
 		next()
 	});
 
-	var oneYear = 60 * 1000 * 60 * 24 * 365;
+	// 根据参数设置 maxAge
+	const maxAge = argv.server ? argv.maxAge : 0;
 
-	app.use(express.static(__dirname, { maxAge: oneYear }));
+	app.use(express.static(__dirname, { maxAge: maxAge }));
 
 	app.get("/", (req, res) => {
 		res.send(fs.readFileSync(join('index.html')));

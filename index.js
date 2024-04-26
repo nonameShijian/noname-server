@@ -149,7 +149,7 @@ try {
 		if (stat.isFile()) {
 			throw new Error("getFileList只适用于文件夹而不是文件");
 		}
-		const files = [], folders = [];
+		const files = [], dirs = [];
 		try {
 			fs.readdir(join(dir), (err, filelist) => {
 				if (err) {
@@ -159,14 +159,14 @@ try {
 				for (let i = 0; i < filelist.length; i++) {
 					if (filelist[i][0] != '.' && filelist[i][0] != '_') {
 						if (fs.statSync(join(dir) + '/' + filelist[i]).isDirectory()) {
-							folders.push(filelist[i]);
+							dirs.push(filelist[i]);
 						}
 						else {
 							files.push(filelist[i]);
 						}
 					}
 				}
-				res.json(successfulJson({ folders, files }));
+				res.json(successfulJson({ dirs, files }));
 			});
 		}
 		catch (e) {

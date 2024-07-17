@@ -1,27 +1,31 @@
 try {
 	const express = require("express");
 	const minimist = require("minimist");
-	const bodyParser = require('body-parser');
+	const bodyParser = require("body-parser");
 	const app = express();
-	const fs = require('fs');
-	const path = require('path');
+	const fs = require("fs");
+	const path = require("path");
 
 	const oneYear = 60 * 1000 * 60 * 24 * 365;
 
 	// 解析命令行参数
 	// 示例: -s --maxAge 100
 	const argv = minimist(process.argv.slice(2), {
-		alias: { "server": "s" },
-		default: { maxAge: oneYear }
+		alias: { server: "s" },
+		default: { maxAge: oneYear },
 	});
 
-	app.use(bodyParser.json({
-		limit:'10240mb'
-	}));
-	app.use(bodyParser.urlencoded({
-		limit: "10240mb",
-		extended: true, //需明确设置
-	}));
+	app.use(
+		bodyParser.json({
+			limit: "10240mb",
+		})
+	);
+	app.use(
+		bodyParser.urlencoded({
+			limit: "10240mb",
+			extended: true, //需明确设置
+		})
+	);
 	function join(url) {
 		return path.join(__dirname, url);
 	}
@@ -36,11 +40,11 @@ try {
 	app.use(bodyParser.json());
 
 	// 全局 中间件  解决所有路由的 跨域问题
-	app.all('*', function (req, res, next) {
-		res.header('Access-Control-Allow-Origin', '*')
-		res.header('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type')
-		res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
-		next()
+	app.all("*", function (req, res, next) {
+		res.header("Access-Control-Allow-Origin", "*");
+		res.header("Access-Control-Allow-Headers", "X-Requested-With,Content-Type");
+		res.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+		next();
 	});
 
 	// 根据参数设置 maxAge
@@ -49,13 +53,13 @@ try {
 	app.use(express.static(__dirname, { maxAge: maxAge }));
 
 	app.get("/", (req, res) => {
-		res.send(fs.readFileSync(join('index.html')));
+		res.send(fs.readFileSync(join("index.html")));
 	});
 
 	app.get("/createDir", (req, res) => {
 		const { dir } = req.query;
 		if (!isInProject(dir)) {
-			throw new Error(`只能访问${ __dirname }的文件或文件夹`);
+			throw new Error(`只能访问${__dirname}的文件或文件夹`);
 		}
 		if (!fs.existsSync(join(dir))) {
 			fs.mkdirSync(join(dir), { recursive: true });
@@ -87,15 +91,9 @@ try {
 			throw new Error(`只能访问${__dirname}的文件或文件夹`);
 		}
 		if (fs.existsSync(join(fileName))) {
-			res.json(successfulJson(
-				Array.prototype.slice.call(
-					new Uint8Array(
-						fs.readFileSync(join(fileName))
-					)
-				)
-			));
+			res.json(successfulJson(Array.prototype.slice.call(new Uint8Array(fs.readFileSync(join(fileName))))));
 		} else {
-			res.json(failedJson(404, '文件不存在'));
+			res.json(failedJson(404, "文件不存在"));
 		}
 	});
 
@@ -105,9 +103,9 @@ try {
 			throw new Error(`只能访问${__dirname}的文件或文件夹`);
 		}
 		if (fs.existsSync(join(fileName))) {
-			res.json(successfulJson(fs.readFileSync(join(fileName), 'utf-8')));
+			res.json(successfulJson(fs.readFileSync(join(fileName), "utf-8")));
 		} else {
-			res.json(failedJson(404, '文件不存在'));
+			res.json(failedJson(404, "文件不存在"));
 		}
 	});
 
@@ -149,7 +147,8 @@ try {
 		if (stat.isFile()) {
 			throw new Error("getFileList只适用于文件夹而不是文件");
 		}
-		const files = [], folders = [];
+		const files = [],
+			folders = [];
 		try {
 			fs.readdir(join(dir), (err, filelist) => {
 				if (err) {
@@ -157,19 +156,17 @@ try {
 					return;
 				}
 				for (let i = 0; i < filelist.length; i++) {
-					if (filelist[i][0] != '.' && filelist[i][0] != '_') {
-						if (fs.statSync(join(dir) + '/' + filelist[i]).isDirectory()) {
+					if (filelist[i][0] != "." && filelist[i][0] != "_") {
+						if (fs.statSync(join(dir) + "/" + filelist[i]).isDirectory()) {
 							folders.push(filelist[i]);
-						}
-						else {
+						} else {
 							files.push(filelist[i]);
 						}
 					}
 				}
 				res.json(successfulJson({ folders, files }));
 			});
-		}
-		catch (e) {
+		} catch (e) {
 			res.json(failedJson(500, String(e)));
 		}
 	});
@@ -183,10 +180,10 @@ try {
 			if (fs.statSync(join(fileName)).isFile()) {
 				res.json(successfulJson());
 			} else {
-				res.json(failedJson(404, '不是一个文件'));
+				res.json(failedJson(404, "不是一个文件"));
 			}
 		} catch (error) {
-			res.json(failedJson(404, '文件不存在或无法访问'));
+			res.json(failedJson(404, "文件不存在或无法访问"));
 		}
 	});
 
@@ -199,16 +196,16 @@ try {
 			if (fs.statSync(join(dir)).isDirectory()) {
 				res.json(successfulJson());
 			} else {
-				res.json(failedJson(404, '不是一个文件夹'));
+				res.json(failedJson(404, "不是一个文件夹"));
 			}
 		} catch (error) {
-			res.json(failedJson(404, '文件夹不存在或无法访问'));
+			res.json(failedJson(404, "文件夹不存在或无法访问"));
 		}
 	});
 
 	app.use((req, res, next) => {
 		res.status(404).send("Sorry can't find that!");
-	})
+	});
 
 	app.use(function (err, req, res, next) {
 		console.log(err);
@@ -217,7 +214,7 @@ try {
 
 	app.listen(8089, () => {
 		console.log("应用正在使用 8089 端口以提供无名杀本地服务器功能!");
-		if (!process.argv[2]) require('child_process').exec('start http://localhost:8089/');
+		if (!process.argv[2]) require("child_process").exec("start http://localhost:8089/");
 	});
 
 	class ReturnData {
@@ -265,28 +262,28 @@ try {
 	}
 
 	/**
-     * Business is successful.
-     *
-     * @param data return data.
-     *
-     * @return json.
-     */
-    function successfulJson(data) {
-        const returnData = new ReturnData();
+	 * Business is successful.
+	 *
+	 * @param data return data.
+	 *
+	 * @return json.
+	 */
+	function successfulJson(data) {
+		const returnData = new ReturnData();
 		returnData.setSuccess(true);
 		returnData.setCode(200);
 		returnData.setData(data);
 		return returnData;
 	}
 
-    /**
-     * Business is failed.
-     *
-     * @param code error code.
-     * @param message message.
-     *
-     * @return json.
-     */
+	/**
+	 * Business is failed.
+	 *
+	 * @param code error code.
+	 * @param message message.
+	 *
+	 * @return json.
+	 */
 	function failedJson(code, message) {
 		const returnData = new ReturnData();
 		returnData.setSuccess(false);
@@ -294,7 +291,6 @@ try {
 		returnData.setErrorMsg(message);
 		return returnData;
 	}
-
 } catch (e) {
 	console.error("本地服务器启动失败: ");
 	console.error(e);

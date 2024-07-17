@@ -12,8 +12,17 @@ try {
 	// 示例: -s --maxAge 100
 	const argv = minimist(process.argv.slice(2), {
 		alias: { server: "s" },
-		default: { maxAge: oneYear },
+		default: {
+			server: false,
+			maxAge: oneYear,
+			port: 8089,
+			debug: false,
+		},
 	});
+
+	if (argv.debug) {
+		console.log(`argv:`, argv);
+	}
 
 	app.use(
 		bodyParser.json({
@@ -48,7 +57,7 @@ try {
 	});
 
 	// 根据参数设置 maxAge
-	const maxAge = argv.server ? argv.maxAge : 0;
+	const maxAge = argv.server && !argv.debug ? argv.maxAge : 0;
 
 	app.use(express.static(__dirname, { maxAge: maxAge }));
 
@@ -212,8 +221,8 @@ try {
 		return res.json(failedJson(400, String(err)));
 	});
 
-	app.listen(8089, () => {
-		console.log("应用正在使用 8089 端口以提供无名杀本地服务器功能!");
+	app.listen(argv.port, () => {
+		console.log(`应用正在使用 ${argv.port} 端口以提供无名杀本地服务器功能!`);
 		if (!process.argv[2]) require("child_process").exec("start http://localhost:8089/");
 	});
 

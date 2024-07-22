@@ -223,7 +223,7 @@ try {
 
 	app.listen(argv.port, () => {
 		console.log(`应用正在使用 ${argv.port} 端口以提供无名杀本地服务器功能!`);
-		if (!process.argv[2]) require("child_process").exec("start http://localhost:8089/");
+		if (!process.argv[2]) require("child_process").exec(`start http://localhost:${argv.port}/`);
 	});
 
 	class ReturnData {

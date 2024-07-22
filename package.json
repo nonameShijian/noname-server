@@ -5,7 +5,7 @@
   "main": "index.js",
   "bin": "index.js",
   "scripts": {
-    "build": "npm run build:win && npm run build:mac",
+    "build": "npm run build:win && npm run build:mac && npm run build:linux",
     "build:win": "bash win-build.sh",
     "build:mac": "bash mac-build.sh",
     "build:linux": "bash linux-build.sh"

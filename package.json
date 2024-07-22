@@ -7,7 +7,8 @@
   "scripts": {
     "build": "npm run build:win && npm run build:mac",
     "build:win": "bash win-build.sh",
-    "build:mac": "bash mac-build.sh"
+    "build:mac": "bash mac-build.sh",
+    "build:linux": "bash linux-build.sh"
   },
   "pkg": {
     "targets": [

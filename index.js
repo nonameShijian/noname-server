@@ -1,5 +1,6 @@
 try {
 	const express = require("express");
+	const https = require("https");
 	const minimist = require("minimist");
 	const bodyParser = require("body-parser");
 	const app = express();
@@ -13,6 +14,8 @@ try {
 	const argv = minimist(process.argv.slice(2), {
 		alias: { server: "s" },
 		default: {
+			platform: "unknow",
+			https: false,
 			server: false,
 			maxAge: oneYear,
 			port: 8089,
@@ -221,10 +224,24 @@ try {
 		return res.json(failedJson(400, String(err)));
 	});
 
-	app.listen(argv.port, () => {
+	console.log(argv);
+	const callback = () => {
 		console.log(`应用正在使用 ${argv.port} 端口以提供无名杀本地服务器功能!`);
-		if (!process.argv[2]) require("child_process").exec(`start http://localhost:${argv.port}/`);
-	});
+		if (argv.platform == "unknow") require("child_process").exec(`start ${argv.https ? "https" : "http"}://localhost:${argv.port}/`);
+	};
+	if (argv.https) {
+		const SSLOptions = {
+			key: fs.readFileSync(path.join(__dirname, "localhost.decrypted.key")),
+			cert: fs.readFileSync(path.join(__dirname, "localhost.crt")),
+		};
+		const httpsServer = https.createServer(SSLOptions, app);
+		// 会提示NET::ERR_CERT_AUTHORITY_INVALID
+		// 但浏览器还是可以访问的
+		// todo: 解决sw注册问题
+		httpsServer.listen(argv.port, callback);
+	} else {
+		app.listen(argv.port, callback);
+	}
 
 	class ReturnData {
 		success;
